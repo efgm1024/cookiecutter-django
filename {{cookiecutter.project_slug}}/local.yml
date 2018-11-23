@@ -17,6 +17,7 @@ services:
       {%- endif %}
     volumes:
       - .:/app
+       - /app/.venv
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
