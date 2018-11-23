@@ -2,6 +2,7 @@ FROM python:3.7-alpine
 
 ENV PYTHONUNBUFFERED 1
 ENV PIPENV_VENV_IN_PROJECT 1
+ENV PIPENV_TIMEOUT 10000
 
 RUN apk update \
   # psycopg2 dependencies
@@ -19,6 +20,7 @@ RUN apk update \
 # Requirements are installed here to ensure they will be cached.
 COPY ./Pipfile /app/Pipfile
 RUN mkdir -p /app/.venv && \
+    cd /app && \
     pip install pipenv && \
     pipenv install --dev
 
