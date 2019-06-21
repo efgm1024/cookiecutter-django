@@ -3,5 +3,4 @@
 set -o errexit
 set -o nounset
 
-
-/app/.venv/bin/celery -A {{cookiecutter.project_slug}}.taskapp worker -l INFO
+/app/.venv/bin/celery -A config.celery_app worker -l INFO

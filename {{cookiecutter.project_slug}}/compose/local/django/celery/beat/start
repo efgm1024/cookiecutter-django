@@ -5,4 +5,4 @@ set -o nounset
 
 
 rm -f './celerybeat.pid'
-/app/.venv/bin/celery -A {{cookiecutter.project_slug}}.taskapp beat -l INFO
+/app/.venv/bin/celery -A config.celery_app beat -l INFO

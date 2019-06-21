@@ -1,3 +1,14 @@
+{% if cookiecutter.js_task_runner == 'Gulp' -%}
+FROM node:10-stretch-slim as client-builder
+
+WORKDIR /app
+COPY ./package.json /app
+RUN npm install && npm cache clean --force
+COPY . /app
+RUN npm run build
+
+# Python build stage
+{%- endif %}
 FROM python:3.7-alpine
 
 ENV PYTHONUNBUFFERED 1
@@ -24,30 +35,36 @@ RUN mkdir -p /app/.venv && \
     pipenv install
 
 COPY ./compose/production/django/entrypoint /entrypoint
-RUN sed -i 's/\r//' /entrypoint && \
-    chmod +x /entrypoint && \
-    chown django /entrypoint
+RUN sed -i 's/\r$//g' /entrypoint
+RUN chmod +x /entrypoint
+RUN chown django /entrypoint
 
 COPY ./compose/production/django/start /start
-RUN sed -i 's/\r//' /start && \
-    chmod +x /start && \
-    chown django /start
-{% if cookiecutter.use_celery == "y" %}
+RUN sed -i 's/\r$//g' /start
+RUN chmod +x /start
+RUN chown django /start
+
+{%- if cookiecutter.use_celery == "y" %}
 COPY ./compose/production/django/celery/worker/start /start-celeryworker
-RUN sed -i 's/\r//' /start-celeryworker && \
-    chmod +x /start-celeryworker && \
-    chown django /start-celeryworker
+RUN sed -i 's/\r$//g' /start-celeryworker
+RUN chmod +x /start-celeryworker
+RUN chown django /start-celeryworker
 
 COPY ./compose/production/django/celery/beat/start /start-celerybeat
-RUN sed -i 's/\r//' /start-celerybeat && \
-    chmod +x /start-celerybeat && \
-    chown django /start-celerybeat
+RUN sed -i 's/\r$//g' /start-celerybeat
+RUN chmod +x /start-celerybeat
+RUN chown django /start-celerybeat
 
 COPY ./compose/production/django/celery/flower/start /start-flower
-RUN sed -i 's/\r//' /start-flower && \
-    chmod +x /start-flower
-{% endif %}
+RUN sed -i 's/\r$//g' /start-flower
+RUN chmod +x /start-flower
+{%- endif %}
+
+{%- if cookiecutter.js_task_runner == 'Gulp' %}
+COPY --from=client-builder /app /app
+{% else %}
 COPY . /app
+{%- endif %}
 
 RUN chown -R django /app
 
